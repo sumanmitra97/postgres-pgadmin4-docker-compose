@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  postgres:
+    container_name: postgres-container
+    image: postgres:${PG_VERSION}
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      PGDATA: /data/postgres
+    volumes:
+      - postgres-volume:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres-network
+    configs:
+      - postgres-config
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: pgadmin4-container
+    image: dpage/pgadmin4:${PGADMIN4_VERSION}
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_SERVER_JSON_FILE: /opt/pgadmin4/server.json
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      PGADMIN_CONFIG_MAX_QUERY_HIST_STORED : 100
+    volumes:
+      - pgadmin-volume:/opt/pgadmin4
+    ports:
+      - "5050:80"
+    networks:
+      - postgres-network
+    restart: unless-stopped
+
+networks:
+  postgres-network:
+    driver: bridge
+
+volumes:
+  postgres-volume:
+  pgadmin-volume:
+
+configs: 
+  postgres-config: 
+    file: postgres.cfg
